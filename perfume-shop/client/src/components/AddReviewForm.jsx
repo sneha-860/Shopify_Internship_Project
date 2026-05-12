@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import StarRating from './StarRating';
 import Toast from './Toast';
 import './AddReviewForm.css';
@@ -29,7 +29,7 @@ const AddReviewForm = ({ productId, onReviewAdded }) => {
     
     setIsSubmitting(true);
     try {
-      const response = await axios.post(`/api/products/${productId}/reviews`, {
+      const response = await api.post(`/products/${productId}/reviews`, {
         author: formData.name,
         rating,
         title: formData.title,

@@ -157,12 +157,6 @@
     text-align: center;
   }
 
-  /* Hide search + wishlist on mobile, keep cart */
-  #search-icon-btn,
-  #wishlist-icon-btn {
-    display: none;
-  }
-
   .mobile-toggle {
     display: flex;
   }

@@ -14,7 +14,9 @@ const saveCartToStorage = (cart) => {
   try {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { action: 'updated' } }));
-  } catch {}
+  } catch (error) {
+    console.error('Unable to save cart:', error);
+  }
 };
 
 export const useCart = () => {
@@ -66,5 +68,9 @@ export const useCart = () => {
     updateCart(updated);
   }, [updateCart]);
 
-  return { cart, totalCount, increaseQty, decreaseQty, removeItem };
+  const clearCart = useCallback(() => {
+    updateCart([]);
+  }, [updateCart]);
+
+  return { cart, totalCount, increaseQty, decreaseQty, removeItem, clearCart };
 };

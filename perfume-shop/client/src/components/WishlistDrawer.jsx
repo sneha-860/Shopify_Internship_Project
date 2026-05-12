@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWishlist } from '../hooks/useWishlist';
+import api from '../api';
 import './WishlistDrawer.css';
 
 const WishlistDrawer = ({ isOpen, onClose, onToast }) => {
@@ -10,19 +11,22 @@ const WishlistDrawer = ({ isOpen, onClose, onToast }) => {
 
   // Fetch product details for wishlisted IDs
   useEffect(() => {
-    if (!isOpen || wishlist.length === 0) {
-      setProducts([]);
-      return;
-    }
+    if (!isOpen || wishlist.length === 0) return;
+
     const fetchProducts = async () => {
       try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
-        setProducts(data.filter(p => wishlist.includes(p._id)));
-      } catch {}
+        const res = await api.get('/products');
+        setProducts(res.data.filter(p => wishlist.includes(p._id)));
+      } catch (error) {
+        console.error('Unable to load wishlist products:', error);
+      }
     };
     fetchProducts();
   }, [isOpen, wishlist]);
+
+  const visibleProducts = wishlist.length === 0
+    ? []
+    : products.filter(product => wishlist.includes(product._id));
 
   const handleAddToCart = (product) => {
     try {
@@ -39,14 +43,16 @@ const WishlistDrawer = ({ isOpen, onClose, onToast }) => {
           name: product.name,
           price: firstSize.price,
           selectedSize: firstSize.size,
-          image: product.images[0],
+          image: product.images?.[0],
           quantity: 1,
         });
       }
       localStorage.setItem('lumiere_cart', JSON.stringify(cart));
       window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { action: 'added' } }));
       onToast('Added to cart! 🛒');
-    } catch {}
+    } catch (error) {
+      console.error('Unable to add wishlist item to cart:', error);
+    }
   };
 
   return (
@@ -68,12 +74,15 @@ const WishlistDrawer = ({ isOpen, onClose, onToast }) => {
             </div>
           ) : (
             <ul className="wishlist-items-list">
-              {products.map(product => (
+              {visibleProducts.map(product => (
                 <li key={product._id} className="wishlist-item">
                   <img
-                    src={product.images[0]}
+                    src={product.images?.[0]}
                     alt={product.name}
                     className="wishlist-item-img"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=600';
+                    }}
                     onClick={() => { navigate(`/product/${product._id}`); onClose(); }}
                     style={{ cursor: 'pointer' }}
                   />

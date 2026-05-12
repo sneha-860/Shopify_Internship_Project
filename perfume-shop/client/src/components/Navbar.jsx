@@ -50,7 +50,10 @@ const Navbar = () => {
     }
   };
 
-  const isActive = (path) => location.pathname === path;
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById('about');
+    if (aboutSection) aboutSection.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <>
@@ -75,14 +78,11 @@ const Navbar = () => {
 
             {/* FIX 3: About → AboutSection component */}
             <Link
-            to="/"
+              to="/"
               onClick={() => {
                 setMobileMenuOpen(false);
-                // Scroll to AboutSection on homepage
-                const aboutSection = document.getElementById('about');
-                if (aboutSection) {
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                }
+                if (location.pathname === '/') scrollToAbout();
+                else setTimeout(scrollToAbout, 400);
                }}
             >About</Link>
 

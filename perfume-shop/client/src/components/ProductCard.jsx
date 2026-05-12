@@ -36,12 +36,13 @@ const ProductCard = ({ product }) => {
     ? product.images[0]
     : null;
 
-  // FIX 4: Heart toggles wishlist, does NOT navigate
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
     try {
       toggleWishlist(product._id);
-    } catch {}
+    } catch (error) {
+      console.error('Unable to update wishlist:', error);
+    }
   };
 
   return (
@@ -71,7 +72,6 @@ const ProductCard = ({ product }) => {
           <span className="card-image-name">{product.name}</span>
         </div>
         {product.badge && <span className="badge">{product.badge}</span>}
- {/* Wishlist heart button */}
         <button
           className={`heart-btn ${wishlisted ? 'wishlisted' : ''}`}
           onClick={handleWishlistToggle}
@@ -79,8 +79,7 @@ const ProductCard = ({ product }) => {
         >
           {wishlisted ? '♥' : '♡'}
         </button>
-
-              </div>
+      </div>
 
       <div className="card-body">
         <p className="product-brand">{product.brand}</p>
@@ -93,6 +92,11 @@ const ProductCard = ({ product }) => {
         </div>
 
         <p className="product-price">₹{product.price}</p>
+        <div className="marketplace-card-meta">
+          <span>Free delivery</span>
+          <span>Assured</span>
+        </div>
+        <p className="product-offer">Bank offer available</p>
       </div>
     </div>
   );

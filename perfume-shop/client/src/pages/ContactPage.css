@@ -65,6 +65,12 @@
   box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
 }
 
+.form-error {
+  color: #b42318;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .form-input::placeholder {
   color: var(--taupe);
 }

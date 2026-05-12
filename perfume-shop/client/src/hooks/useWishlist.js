@@ -14,7 +14,9 @@ const saveWishlistToStorage = (list) => {
   try {
     localStorage.setItem(WISHLIST_KEY, JSON.stringify(list));
     window.dispatchEvent(new CustomEvent('wishlistUpdated'));
-  } catch {}
+  } catch (error) {
+    console.error('Unable to save wishlist:', error);
+  }
 };
 
 export const useWishlist = () => {

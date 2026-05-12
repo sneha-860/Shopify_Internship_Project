@@ -6,7 +6,10 @@ import './ProductInfo.css';
 
 // Product details, size selector, and action buttons
 const ProductInfo = ({ product }) => {
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
+  const availableSizes = product.sizes?.length
+    ? product.sizes
+    : [{ size: 'Default', price: product.price }];
+  const [selectedSize, setSelectedSize] = useState(availableSizes[0]);
   const [showShare, setShowShare] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
@@ -19,7 +22,7 @@ const ProductInfo = ({ product }) => {
   const handleAddToCart = () => {
     const cart = JSON.parse(localStorage.getItem('lumiere_cart') || '[]');
     const existingItemIndex = cart.findIndex(
-      item => item.productId === product._id && item.selectedSize.size === selectedSize.size
+      item => item.productId === product._id && item.selectedSize === selectedSize.size
     );
 
     if (existingItemIndex > -1) {
@@ -30,7 +33,7 @@ const ProductInfo = ({ product }) => {
         name: product.name,
         price: selectedSize.price,
         selectedSize: selectedSize.size,
-        image: product.images[0],
+        image: product.images?.[0],
         quantity: 1
       });
     }
@@ -38,7 +41,7 @@ const ProductInfo = ({ product }) => {
     localStorage.setItem('lumiere_cart', JSON.stringify(cart));
     
     // Dispatch custom event for Navbar to update badge
-    window.dispatchEvent(new Event('cartUpdated'));
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { action: 'added' } }));
 
     setToastMessage('Added to cart! 🛒');
     setToastVisible(true);
@@ -77,8 +80,8 @@ const ProductInfo = ({ product }) => {
       <h1 className="pi-name">{product.name}</h1>
       
       <div className="pi-rating-row">
-        <StarRating rating={product.rating} />
-        <span className="pi-review-text">{product.rating.toFixed(1)} ({product.reviewCount} reviews)</span>
+        <StarRating rating={product.rating || 0} />
+        <span className="pi-review-text">{Number(product.rating || 0).toFixed(1)} ({product.reviewCount || 0} reviews)</span>
       </div>
       
       <div className="pi-price">₹{selectedSize.price}</div>
@@ -87,7 +90,7 @@ const ProductInfo = ({ product }) => {
       
       <p className="pi-size-label">Select Size</p>
       <div className="pi-size-options">
-        {product.sizes.map((s, idx) => (
+        {availableSizes.map((s, idx) => (
           <button
             key={idx}
             className={`size-btn ${selectedSize.size === s.size ? 'selected' : ''}`}
@@ -100,7 +103,7 @@ const ProductInfo = ({ product }) => {
       
       <hr className="pi-divider" />
       
-      <p className="pi-desc">{product.description}</p>
+      <p className="pi-desc">{product.description || 'No description available.'}</p>
       
       <div className="pi-actions">
         <button className="btn-add-cart" onClick={handleAddToCart}>

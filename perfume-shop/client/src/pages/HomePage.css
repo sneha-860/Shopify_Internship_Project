@@ -4,11 +4,91 @@
   margin: 0 auto;
 }
 
+.catalog-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.catalog-eyebrow {
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
 .section-heading {
-  text-align: center;
+  text-align: left;
   font-size: 2.5rem;
-  margin-bottom: 48px;
+  margin-bottom: 8px;
   color: var(--black);
+}
+
+.catalog-count {
+  color: var(--taupe);
+  font-size: 0.95rem;
+}
+
+.btn-reset-filters {
+  border: 1px solid #ddd4c8;
+  color: var(--black);
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-weight: 700;
+  background: var(--white);
+}
+
+.btn-reset-filters:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.marketplace-controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(5, minmax(130px, 1fr));
+  gap: 12px;
+  align-items: end;
+  background: #fbfaf7;
+  border: 1px solid #eadfcd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 32px;
+}
+
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.control-field span {
+  color: #66584a;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.control-field input,
+.control-field select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #d8ccbb;
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  padding: 0 12px;
+}
+
+.control-field input:focus,
+.control-field select:focus {
+  border-color: var(--gold);
+  outline: 2px solid rgba(201, 168, 76, 0.18);
 }
 
 .product-grid {
@@ -47,6 +127,31 @@
 @media (min-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .marketplace-controls {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .search-field {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .catalog-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .marketplace-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    font-size: 2rem;
   }
 }
 

@@ -1,43 +1,37 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api';
 import './SearchOverlay.css';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
   const [allProducts, setAllProducts] = useState([]);
-  const [results, setResults] = useState([]);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const trimmedQuery = query.trim().toLowerCase();
+  const results = trimmedQuery
+    ? allProducts
+        .filter(p => p.name.toLowerCase().includes(trimmedQuery) || p.brand.toLowerCase().includes(trimmedQuery))
+        .slice(0, 8)
+    : [];
 
   // Fetch products once when overlay opens
   useEffect(() => {
     if (!isOpen) return;
-    setQuery('');
-    setResults([]);
     setTimeout(() => inputRef.current?.focus(), 80);
 
     if (allProducts.length > 0) return;
     const fetchProducts = async () => {
       try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
-        setAllProducts(data);
-      } catch {}
+        const res = await api.get('/products');
+        setAllProducts(res.data);
+      } catch (error) {
+        console.error('Unable to load search products:', error);
+      }
     };
     fetchProducts();
-  }, [isOpen]);
-
-  // Filter as user types
-  useEffect(() => {
-    if (!query.trim()) { setResults([]); return; }
-    const q = query.toLowerCase();
-    setResults(
-      allProducts
-        .filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q))
-        .slice(0, 8)
-    );
-  }, [query, allProducts]);
+  }, [isOpen, allProducts.length]);
 
   // Escape key closes overlay
   useEffect(() => {
@@ -109,7 +103,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
           </ul>
         )}
 
-        {query.trim() && results.length === 0 && (
+        {trimmedQuery && results.length === 0 && (
           <p className="search-no-results">No fragrances found for "{query}"</p>
         )}
       </div>
@@ -118,7 +112,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
 };
 
 // Helpers for CSS gradient placeholders
-export const getCategoryGradient = (category = '') => {
+const getCategoryGradient = (category = '') => {
   const c = category.toLowerCase();
   if (c.includes('floral')) return 'linear-gradient(135deg, #0d0010, #2d0030)';
   if (c.includes('amber'))  return 'linear-gradient(135deg, #1a0f00, #3d2800)';
@@ -126,7 +120,7 @@ export const getCategoryGradient = (category = '') => {
   return 'linear-gradient(135deg, #1a0a00, #3d1f00)'; // Oriental / default
 };
 
-export const getCategorySymbol = (category = '') => {
+const getCategorySymbol = (category = '') => {
   const c = category.toLowerCase();
   if (c.includes('floral')) return '❋';
   if (c.includes('amber'))  return '◉';

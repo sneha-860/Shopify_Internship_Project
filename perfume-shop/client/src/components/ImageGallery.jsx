@@ -3,7 +3,8 @@ import './ImageGallery.css';
 
 // Product image gallery with thumbnail switching
 const ImageGallery = ({ images }) => {
-  const [selectedImage, setSelectedImage] = useState(images[0]);
+  const fallbackImage = 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=600';
+  const [selectedImage, setSelectedImage] = useState(images?.[0] || fallbackImage);
   const [isFading, setIsFading] = useState(false);
 
   const handleThumbnailClick = (img) => {
@@ -15,7 +16,7 @@ const ImageGallery = ({ images }) => {
     }, 150);
   };
 
-  if (!images || images.length === 0) return null;
+  const galleryImages = images?.length ? images : [fallbackImage];
 
   return (
     <div className="image-gallery">
@@ -23,32 +24,25 @@ const ImageGallery = ({ images }) => {
         <img 
           src={selectedImage} 
           alt="Product" 
-           className="gallery-main-image"
+          className={`main-image ${isFading ? 'fade-out' : 'fade-in'}`}
           onError={(e) => {
-            e.target.src = 
-            'https://images.unsplash.com/photo-1541643600914-78b084683702?w=600'
+            e.target.src = fallbackImage;
           }}
-          className={`main-image ${isFading ? 'fade-out' : 'fade-in'}`} 
         />
       </div>
       
-      {images.length > 1 && (
+      {galleryImages.length > 1 && (
         <div className="thumbnails">
-          {images.map((img, index) => (
+          {galleryImages.map((img, index) => (
             <img
               key={index}
               src={img}
-              alt={`View ${index + 1}`}
-              className={`gallery-thumb ${selectedImage === img 
-                ? 'gallery-thumb-active' : ''}`}
-              onClick={() => setSelectedImage(img)}
-              onError={(e) => {
-                e.target.src = 
-                'https://images.unsplash.com/photo-1541643600914-78b084683702?w=600'
-              }}
               alt={`Thumbnail ${index + 1}`}
               className={`thumbnail ${selectedImage === img ? 'selected' : ''}`}
               onClick={() => handleThumbnailClick(img)}
+              onError={(e) => {
+                e.target.src = fallbackImage;
+              }}
             />
           ))}
         </div>

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import ImageGallery from '../components/ImageGallery';
 import ProductInfo from '../components/ProductInfo';
 import ReviewsList from '../components/ReviewsList';
@@ -16,39 +16,43 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const [productRes, reviewsRes] = await Promise.all([
-        axios.get(`/api/products/${id}`),
-        axios.get(`/api/products/${id}/reviews`)
+        api.get(`/products/${id}`),
+        api.get(`/products/${id}/reviews`)
       ]);
       setProduct(productRes.data);
       setReviews(reviewsRes.data);
-    } catch (err) {
+    } catch (error) {
+      console.error('Unable to load product details:', error);
       setError('Unable to load product details. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+  }, [fetchData]);
 
   const handleReviewAdded = (newReview) => {
-    setReviews([newReview, ...reviews]);
+    setReviews(currentReviews => [newReview, ...currentReviews]);
     
     // Update product rating and count locally for instant UI update
-    const newCount = product.reviewCount + 1;
-    const currentTotal = product.rating * product.reviewCount;
-    const newRating = (currentTotal + newReview.rating) / newCount;
-    
-    setProduct({
-      ...product,
-      reviewCount: newCount,
-      rating: newRating
+    setProduct(currentProduct => {
+      const currentCount = currentProduct.reviewCount || 0;
+      const newCount = currentCount + 1;
+      const currentTotal = (currentProduct.rating || 0) * currentCount;
+      const newRating = (currentTotal + newReview.rating) / newCount;
+
+      return {
+        ...currentProduct,
+        reviewCount: newCount,
+        rating: newRating
+      };
     });
   };
 

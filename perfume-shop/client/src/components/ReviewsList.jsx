@@ -20,8 +20,8 @@ const ReviewsList = ({ reviews, averageRating, totalReviews }) => {
       </div>
 
       <div className="rl-cards">
-        {reviews.map((review) => (
-          <ReviewCard key={review._id || Math.random()} review={review} />
+        {reviews.map((review, index) => (
+          <ReviewCard key={review._id || `${review.author}-${review.date}-${index}`} review={review} />
         ))}
       </div>
     </div>

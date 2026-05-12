@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const Product = require('./models/Product');
 const Review = require('./models/Review');
+const Order = require('./models/Order');
 
 const products = [
   {
@@ -93,9 +94,10 @@ const products = [
 
 const seedDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/perfume_shop');
     await Product.deleteMany({});
     await Review.deleteMany({});
+    await Order.deleteMany({});
 
     const createdProducts = await Product.insertMany(products);
 
@@ -130,7 +132,7 @@ const seedDB = async () => {
     });
 
     await Review.insertMany(reviews);
-    // Database seeded successfully
+    console.log(`Seeded ${createdProducts.length} products and ${reviews.length} reviews.`);
     process.exit(0);
   } catch (err) {
     console.error("Seeding error:", err);

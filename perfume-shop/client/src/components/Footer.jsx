@@ -1,15 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 // Site footer with brand info, links, and social icons
 const Footer = () => {
-  const navigate = useNavigate();
-  
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
-
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -24,10 +18,10 @@ const Footer = () => {
         <div className="footer-col">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="/">Home</a></li>
+            <li><Link to="/">Home</Link></li>
             <li><a href="#collection">Collections</a></li>
             <li><a href="#about">About Us</a></li>
-           <li><a href="/contact">Contact</a></li>
+            <li><Link to="/contact">Contact</Link></li>
           </ul>
         </div>
 
