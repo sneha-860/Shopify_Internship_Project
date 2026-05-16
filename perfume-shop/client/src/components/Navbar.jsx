@@ -34,7 +34,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // FIX 3 — Collections: smooth scroll on homepage, navigate + scroll on other pages
   const handleCollectionsClick = (e) => {
     e.preventDefault();
     setMobileMenuOpen(false);
@@ -73,10 +72,8 @@ const Navbar = () => {
               Home
             </NavLink>
 
-            {/* FIX 3: Collections scroll */}
             <a href="#collection" onClick={handleCollectionsClick}>Collections</a>
 
-            {/* FIX 3: About → AboutSection component */}
             <Link
               to="/"
               onClick={() => {
@@ -96,7 +93,6 @@ const Navbar = () => {
           </div>
 
           <div className="nav-icons">
-            {/* FIX 2: All icons ivory, hover gold */}
             <button
               className="icon-btn"
               id="search-icon-btn"

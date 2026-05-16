@@ -1,43 +1,43 @@
 # Lumiere Perfume Shop
 
-A full-stack luxury perfume e-commerce app built with React, Vite, Express, MongoDB, and Mongoose. It includes a product catalog, product details, image galleries, reviews, cart and wishlist drawers, search, responsive pages, and seeded sample data.
+Lumiere is a full-stack luxury perfume ecommerce demo built for a portfolio or resume review. It shows a polished React storefront backed by an Express and MongoDB API, with product discovery, product detail pages, reviews, wishlist, cart, and checkout flow.
+
+## Resume Highlights
+
+- Built a responsive React 19 and Vite storefront with reusable product, review, cart, wishlist, search, toast, and gallery components.
+- Implemented REST endpoints in Express for catalog filtering, product detail, review creation, order creation, health checks, and seed data.
+- Added MongoDB and Mongoose models for products, reviews, and orders with validation and derived product rating updates.
+- Designed ecommerce UX details including loading skeletons, empty states, localStorage cart/wishlist persistence, responsive navigation, and a multi-step checkout drawer.
+- Hardened API inputs for invalid Mongo IDs, malformed numeric filters, unsafe search regex input, invalid reviews, and invalid order payloads.
 
 ## Features
 
-### Frontend
-- Responsive React single-page app with React Router
-- Product catalog with loading skeletons
-- Product detail pages with image gallery, size selection, reviews, and share links
-- Cart drawer with quantity controls and localStorage persistence
-- Wishlist drawer with localStorage persistence
-- Search overlay backed by the products API
-- Toast notifications and polished responsive styling
+### Storefront
 
-### Backend
-- Express REST API
-- MongoDB models for products and reviews
-- Product list/detail endpoints
-- Review submission with automatic rating and review count recalculation
-- Database seeding script
-- Health check endpoint
-- CORS and environment variable support
+- Luxury homepage with visual hero, offer strip, catalog filters, and responsive product grid
+- Search by fragrance or brand
+- Category, price, rating, and sort controls
+- Product detail pages with image gallery, size selection, reviews, share links, cart, and wishlist actions
+- Cart drawer with quantity controls, price breakdown, discount and delivery fee logic, address validation, and order placement
+- Wishlist drawer with localStorage persistence
+- Toasts, loading skeletons, retry states, and empty catalog feedback
+
+### API
+
+- `GET /api/health` server health check
+- `GET /api/products` list products with search, category, price, rating, and sort filters
+- `GET /api/products/:id` fetch one product
+- `GET /api/products/:id/reviews` fetch product reviews
+- `POST /api/products/:id/reviews` submit a review and recalculate product rating metrics
+- `POST /api/orders` create a checkout order
 
 ## Tech Stack
 
-### Client
-- React 19
-- Vite
-- React Router
-- Axios
-- CSS3
-
-### Server
-- Node.js
-- Express 5
-- MongoDB
-- Mongoose
-- CORS
-- dotenv
+| Layer | Tools |
+| --- | --- |
+| Frontend | React 19, Vite, React Router, Axios, CSS |
+| Backend | Node.js, Express 5, MongoDB, Mongoose |
+| Tooling | ESLint, npm scripts, dotenv, nodemon |
 
 ## Project Structure
 
@@ -48,6 +48,7 @@ perfume-shop/
       api.js
       App.jsx
       main.jsx
+      assets/
       components/
       hooks/
       pages/
@@ -62,15 +63,15 @@ perfume-shop/
     package.json
 ```
 
-## Prerequisites
+## Getting Started
+
+Prerequisites:
 
 - Node.js 18 or newer
 - npm
 - MongoDB running locally, or a MongoDB Atlas connection string
 
-## Setup
-
-Install dependencies for both apps:
+Install dependencies:
 
 ```bash
 cd perfume-shop/server
@@ -80,14 +81,17 @@ cd ../client
 npm install
 ```
 
-Create backend environment file:
+Create environment files:
 
 ```bash
 cd ../server
 cp .env.example .env
+
+cd ../client
+cp .env.example .env
 ```
 
-Default backend environment:
+Default server environment:
 
 ```env
 PORT=5000
@@ -96,69 +100,60 @@ CLIENT_URL=http://localhost:3000
 NODE_ENV=development
 ```
 
-Seed the database:
+Seed MongoDB:
 
 ```bash
+cd perfume-shop/server
 npm run seed
 ```
 
-Start the backend:
+Run the backend:
 
 ```bash
 npm run dev
 ```
 
-Start the frontend in a second terminal:
+Run the frontend in a second terminal:
 
 ```bash
 cd perfume-shop/client
 npm run dev
 ```
 
-Open:
-
-```text
-http://localhost:3000
-```
+Open `http://localhost:3000`.
 
 ## Scripts
 
-### Server
-- `npm start` - start the Express server
-- `npm run dev` - start the Express server with nodemon
-- `npm run seed` - reset and seed products/reviews
+From the repository root:
 
-### Client
-- `npm run dev` - start Vite dev server
-- `npm run build` - create production build
-- `npm run lint` - run ESLint
-- `npm run preview` - preview production build
+```bash
+npm run client:dev
+npm run client:lint
+npm run client:build
+npm run server:dev
+npm run server:seed
+```
 
-## API Endpoints
+From each app folder:
 
-- `GET /api/health` - server health check
-- `GET /api/products` - list all products
-- `GET /api/products/:id` - get one product
-- `GET /api/products/:id/reviews` - list product reviews
-- `POST /api/products/:id/reviews` - create a product review
-- `POST /api/orders` - create a checkout order
-
-## Notes
-
-- The Vite dev server proxies `/api` requests to `http://localhost:5000`.
-- Cart and wishlist data are stored in browser localStorage.
-- Product and review data are stored in MongoDB.
-- The frontend can use `VITE_API_BASE_URL` if the API is deployed separately.
+| App | Script | Purpose |
+| --- | --- | --- |
+| Client | `npm run dev` | Start Vite on port 3000 |
+| Client | `npm run lint` | Run ESLint |
+| Client | `npm run build` | Create a production build |
+| Client | `npm run preview` | Preview the production build |
+| Server | `npm run dev` | Start Express with nodemon |
+| Server | `npm start` | Start Express with Node |
+| Server | `npm run seed` | Reset and seed products, reviews, and orders |
 
 ## Verification
 
-The client currently passes:
+Current verification:
 
 ```bash
+cd perfume-shop/client
 npm run lint
 npm run build
 ```
 
----
-
-Lumiere Perfume Shop - a polished full-stack e-commerce project for a resume or portfolio.
+Both commands pass.

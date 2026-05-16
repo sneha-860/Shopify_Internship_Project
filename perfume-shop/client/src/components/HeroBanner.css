@@ -1,17 +1,20 @@
 .hero {
   width: 100%;
   min-height: 90vh;
-  background: radial-gradient(ellipse at center, #1a1400 0%, #0a0a0a 70%);
+  background:
+    linear-gradient(90deg, rgba(10, 10, 10, 0.9) 0%, rgba(10, 10, 10, 0.72) 42%, rgba(10, 10, 10, 0.2) 100%),
+    url('../assets/hero-perfume.png') center / cover no-repeat;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: left;
   color: var(--ivory);
+  padding: 120px 5% 64px;
 }
 
 .hero-content {
   max-width: 900px;
-  padding: 0 20px;
+  padding: 0;
 }
 
 .hero-label {
@@ -30,9 +33,10 @@
 
 .hero-subtitle {
   font-family: var(--font-body);
-  color: var(--taupe);
+  color: #dfd4c4;
   font-size: 1.1rem;
   margin-bottom: 40px;
+  max-width: 520px;
 }
 
 .cta-button {
@@ -48,4 +52,21 @@
 .cta-button:hover {
   background: var(--gold-light);
   transform: translateY(-2px);
+}
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: 82vh;
+    background:
+      linear-gradient(180deg, rgba(10, 10, 10, 0.88) 0%, rgba(10, 10, 10, 0.64) 52%, rgba(10, 10, 10, 0.9) 100%),
+      url('../assets/hero-perfume.png') 58% center / cover no-repeat;
+    text-align: center;
+    justify-content: center;
+    padding: 104px 6% 48px;
+  }
+
+  .hero-subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

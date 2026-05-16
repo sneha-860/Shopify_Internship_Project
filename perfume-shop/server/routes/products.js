@@ -4,6 +4,7 @@ const Product = require('../models/Product');
 const Review = require('../models/Review');
 
 const isValidId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const parseNumberQuery = (value, fieldName) => {
   if (value === undefined || value === '') return null;
@@ -30,12 +31,13 @@ router.get('/', async (req, res) => {
 
     const filter = {};
 
-    if (q) {
+    if (q?.trim()) {
+      const safeQuery = escapeRegExp(q.trim());
       filter.$or = [
-        { name: { $regex: q, $options: 'i' } },
-        { brand: { $regex: q, $options: 'i' } },
-        { tagline: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } }
+        { name: { $regex: safeQuery, $options: 'i' } },
+        { brand: { $regex: safeQuery, $options: 'i' } },
+        { tagline: { $regex: safeQuery, $options: 'i' } },
+        { description: { $regex: safeQuery, $options: 'i' } }
       ];
     }
 

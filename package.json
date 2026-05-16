@@ -1,0 +1,23 @@
+{
+  "name": "lumiere-perfume-shop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack luxury perfume ecommerce demo built with React, Vite, Express, MongoDB, and Mongoose.",
+  "scripts": {
+    "client:dev": "npm --prefix perfume-shop/client run dev",
+    "client:build": "npm --prefix perfume-shop/client run build",
+    "client:lint": "npm --prefix perfume-shop/client run lint",
+    "server:dev": "npm --prefix perfume-shop/server run dev",
+    "server:start": "npm --prefix perfume-shop/server start",
+    "server:seed": "npm --prefix perfume-shop/server run seed"
+  },
+  "keywords": [
+    "react",
+    "vite",
+    "express",
+    "mongodb",
+    "ecommerce"
+  ],
+  "author": "",
+  "license": "MIT"
+}

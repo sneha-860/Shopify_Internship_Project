@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../api';
 import HeroBanner from '../components/HeroBanner';
 import OffersStrip from '../components/OffersStrip';
@@ -17,53 +17,98 @@ const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest First' }
 ];
 
-// Renders homepage sections in order
+const EMPTY_FILTERS = {
+  q: '',
+  category: 'all',
+  minPrice: '',
+  maxPrice: '',
+  minRating: '',
+  sort: 'popular'
+};
+
+const getFilterValidationMessage = (filters) => {
+  const minPrice = filters.minPrice === '' ? null : Number(filters.minPrice);
+  const maxPrice = filters.maxPrice === '' ? null : Number(filters.maxPrice);
+
+  if ((minPrice !== null && minPrice < 0) || (maxPrice !== null && maxPrice < 0)) {
+    return 'Price filters cannot be negative.';
+  }
+
+  if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+    return 'Minimum price cannot be greater than maximum price.';
+  }
+
+  return '';
+};
+
+const buildProductParams = (filters) => Object.fromEntries(
+  Object.entries(filters)
+    .map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])
+    .filter(([, value]) => value !== '' && value !== 'all')
+);
+
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [filters, setFilters] = useState({
-    q: '',
-    category: 'all',
-    minPrice: '',
-    maxPrice: '',
-    minRating: '',
-    sort: 'popular'
-  });
+  const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
 
-  const fetchProducts = useCallback(async () => {
+  const validationMessage = useMemo(() => getFilterValidationMessage(filters), [filters]);
+
+  const fetchProducts = useCallback(async ({ signal } = {}) => {
+    if (validationMessage) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const params = Object.fromEntries(
-        Object.entries(filters).filter(([, value]) => value !== '' && value !== 'all')
-      );
-      const res = await api.get('/products', { params });
+      const res = await api.get('/products', {
+        params: buildProductParams(filters),
+        signal
+      });
       setProducts(res.data);
     } catch (error) {
+      if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') return;
       console.error('Unable to load products:', error);
-      setError('Unable to load products. Please try again.');
+      setError(error.response?.data?.message || 'Unable to load products. Please try again.');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  }, [filters]);
+  }, [filters, validationMessage]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    if (validationMessage) {
+      setLoading(false);
+      setError(null);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const debounceMs = filters.q.trim() ? 350 : 0;
+    const timeoutId = window.setTimeout(() => {
+      fetchProducts({ signal: controller.signal });
+    }, debounceMs);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [fetchProducts, filters.q, validationMessage]);
 
   useEffect(() => {
-    
     const handleCartUpdated = (e) => {
       if (e.detail?.action === 'added') {
-        setToastMessage('Added to cart! 🛒');
+        setToastMessage('Added to cart! \u{1f6d2}');
         setToastVisible(true);
-        setTimeout(() => setToastVisible(false), 3000);
+        window.setTimeout(() => setToastVisible(false), 3000);
       }
     };
-    
+
     window.addEventListener('cartUpdated', handleCartUpdated);
     return () => window.removeEventListener('cartUpdated', handleCartUpdated);
   }, []);
@@ -73,28 +118,32 @@ const HomePage = () => {
   };
 
   const resetFilters = () => {
-    setFilters({
-      q: '',
-      category: 'all',
-      minPrice: '',
-      maxPrice: '',
-      minRating: '',
-      sort: 'popular'
-    });
+    setFilters({ ...EMPTY_FILTERS });
   };
+
+  const activeFilterCount = Object.entries(filters).filter(([, value]) => {
+    const normalizedValue = typeof value === 'string' ? value.trim() : value;
+    return normalizedValue !== '' && normalizedValue !== 'all' && normalizedValue !== 'popular';
+  }).length;
+  const catalogStatus = validationMessage
+    ? 'Adjust filters to continue'
+    : loading
+      ? 'Finding fragrances...'
+      : `${products.length} product${products.length === 1 ? '' : 's'} found`;
 
   return (
     <div className="home-page fade-in">
       <HeroBanner />
       <OffersStrip />
-      
+
       <section className="product-grid-section" id="collection">
         <div className="catalog-header">
           <div>
             <p className="catalog-eyebrow">Marketplace</p>
             <h2 className="section-heading">Our Collection</h2>
             <p className="catalog-count">
-              {loading ? 'Finding fragrances...' : `${products.length} products found`}
+              {catalogStatus}
+              {activeFilterCount > 0 && !loading && !validationMessage && ` - ${activeFilterCount} filter${activeFilterCount === 1 ? '' : 's'} active`}
             </p>
           </div>
           <button className="btn-reset-filters" onClick={resetFilters}>Reset Filters</button>
@@ -106,7 +155,7 @@ const HomePage = () => {
             <input
               type="search"
               value={filters.q}
-              placeholder="Search by perfume, brand, notes"
+              placeholder="Search by fragrance, brand, or description"
               onChange={(e) => updateFilter('q', e.target.value)}
             />
           </label>
@@ -127,8 +176,9 @@ const HomePage = () => {
             <input
               type="number"
               min="0"
+              inputMode="numeric"
               value={filters.minPrice}
-              placeholder="₹"
+              placeholder={'\u20b9'}
               onChange={(e) => updateFilter('minPrice', e.target.value)}
             />
           </label>
@@ -138,8 +188,9 @@ const HomePage = () => {
             <input
               type="number"
               min="0"
+              inputMode="numeric"
               value={filters.maxPrice}
-              placeholder="₹"
+              placeholder={'\u20b9'}
               onChange={(e) => updateFilter('maxPrice', e.target.value)}
             />
           </label>
@@ -148,8 +199,8 @@ const HomePage = () => {
             <span>Rating</span>
             <select value={filters.minRating} onChange={(e) => updateFilter('minRating', e.target.value)}>
               <option value="">Any Rating</option>
-              <option value="4">4★ & above</option>
-              <option value="4.5">4.5★ & above</option>
+              <option value="4">{'4\u2605 & above'}</option>
+              <option value="4.5">{'4.5\u2605 & above'}</option>
             </select>
           </label>
 
@@ -162,24 +213,37 @@ const HomePage = () => {
             </select>
           </label>
         </div>
-        
-        {error ? (
+
+        {validationMessage ? (
+          <div className="filter-message" role="status">
+            <p>{validationMessage}</p>
+            <button className="btn-retry" onClick={resetFilters}>Clear Filters</button>
+          </div>
+        ) : error ? (
           <div className="error-container">
             <p className="error-text">{error}</p>
-            <button className="btn-retry" onClick={fetchProducts}>Retry</button>
+            <button className="btn-retry" onClick={() => fetchProducts()}>Retry</button>
           </div>
         ) : (
-          <div className="product-grid">
-            {loading 
+          <div className="product-grid" aria-busy={loading}>
+            {loading
               ? Array(8).fill(null).map((_, i) => <SkeletonCard key={`skeleton-${i}`} />)
-              : products.map(product => <ProductCard key={product._id} product={product} />)
+              : products.length > 0
+                ? products.map(product => <ProductCard key={product._id} product={product} />)
+                : (
+                  <div className="empty-catalog">
+                    <h3>No fragrances match these filters</h3>
+                    <p>Try widening your price range or clearing one of the filters.</p>
+                    <button className="btn-retry" onClick={resetFilters}>Clear Filters</button>
+                  </div>
+                )
             }
           </div>
         )}
       </section>
-      
+
       <AboutSection />
-      
+
       <Toast message={toastMessage} visible={toastVisible} />
     </div>
   );

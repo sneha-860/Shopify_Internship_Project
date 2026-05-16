@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 
 const PAYMENT_OPTIONS = ['UPI', 'Credit/Debit Card', 'Cash on Delivery'];
@@ -36,7 +37,7 @@ router.post('/', async (req, res) => {
     }));
 
     const invalidItem = normalizedItems.find(item =>
-      !item.productId ||
+      !mongoose.Types.ObjectId.isValid(item.productId) ||
       !item.name ||
       !item.selectedSize ||
       !Number.isFinite(item.price) ||
