@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard';
 import SkeletonCard from '../components/SkeletonCard';
 import Toast from '../components/Toast';
 import AboutSection from '../components/AboutSection';
+import { filterDemoProducts } from '../data/demoCatalog';
 import './HomePage.css';
 
 const CATEGORIES = ['all', 'Oriental', 'Floral', 'Amber', 'Fresh'];
@@ -71,11 +72,12 @@ const HomePage = () => {
         params: buildProductParams(filters),
         signal
       });
-      setProducts(res.data);
+      setProducts(Array.isArray(res.data) ? res.data : filterDemoProducts(filters));
     } catch (error) {
       if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') return;
       console.error('Unable to load products:', error);
-      setError(error.response?.data?.message || 'Unable to load products. Please try again.');
+      setProducts(filterDemoProducts(filters));
+      setError(null);
     } finally {
       if (!signal?.aborted) setLoading(false);
     }

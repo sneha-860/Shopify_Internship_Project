@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { demoProducts } from '../data/demoCatalog';
 import './SearchOverlay.css';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
@@ -25,9 +26,10 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     const fetchProducts = async () => {
       try {
         const res = await api.get('/products');
-        setAllProducts(res.data);
+        setAllProducts(Array.isArray(res.data) ? res.data : demoProducts);
       } catch (error) {
         console.error('Unable to load search products:', error);
+        setAllProducts(demoProducts);
       }
     };
     fetchProducts();

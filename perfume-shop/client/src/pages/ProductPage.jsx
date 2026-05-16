@@ -6,6 +6,7 @@ import ProductInfo from '../components/ProductInfo';
 import ReviewsList from '../components/ReviewsList';
 import AddReviewForm from '../components/AddReviewForm';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { demoReviews, findDemoProduct } from '../data/demoCatalog';
 import './ProductPage.css';
 
 // Full product detail page
@@ -24,11 +25,21 @@ const ProductPage = () => {
         api.get(`/products/${id}`),
         api.get(`/products/${id}/reviews`)
       ]);
-      setProduct(productRes.data);
-      setReviews(reviewsRes.data);
+      const apiProduct = productRes.data && typeof productRes.data === 'object' && !Array.isArray(productRes.data)
+        ? productRes.data
+        : findDemoProduct(id);
+      setProduct(apiProduct || null);
+      setReviews(Array.isArray(reviewsRes.data) ? reviewsRes.data : demoReviews);
     } catch (error) {
       console.error('Unable to load product details:', error);
-      setError('Unable to load product details. Please try again.');
+      const demoProduct = findDemoProduct(id);
+      if (demoProduct) {
+        setProduct(demoProduct);
+        setReviews(demoReviews);
+        setError(null);
+      } else {
+        setError('Unable to load product details. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
