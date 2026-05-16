@@ -1,0 +1,11 @@
+{
+  "installCommand": "npm install --prefix perfume-shop/client",
+  "buildCommand": "npm run client:build",
+  "outputDirectory": "perfume-shop/client/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
