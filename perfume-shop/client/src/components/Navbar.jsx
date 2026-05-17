@@ -6,6 +6,7 @@ import CartDrawer from './CartDrawer';
 import WishlistDrawer from './WishlistDrawer';
 import SearchOverlay from './SearchOverlay';
 import Toast from './Toast';
+import { useAuth } from '../context/useAuth';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -19,6 +20,7 @@ const Navbar = () => {
 
   const { totalCount } = useCart();
   const { wishlist } = useWishlist();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -90,6 +92,20 @@ const Navbar = () => {
            >
               Contact
             </NavLink>
+
+            {isAuthenticated ? (
+              <button className="nav-account-btn" onClick={logout}>
+                Logout {user?.name ? `(${user.name.split(' ')[0]})` : ''}
+              </button>
+            ) : (
+              <NavLink
+                to="/auth"
+                className={({ isActive }) => isActive ? 'nav-active' : ''}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login
+              </NavLink>
+            )}
           </div>
 
           <div className="nav-icons">

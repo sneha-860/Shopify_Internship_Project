@@ -142,6 +142,17 @@
   font-weight: 700;
 }
 
+.catalog-notice {
+  background: #fff8e8;
+  border: 1px solid #eadfcd;
+  border-radius: 8px;
+  color: #6a4c00;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  padding: 12px 16px;
+}
+
 .error-container {
   display: flex;
   flex-direction: column;

@@ -1,0 +1,42 @@
+.error-boundary {
+  align-items: center;
+  background: #fbfaf7;
+  display: flex;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 40px 5%;
+  text-align: center;
+}
+
+.error-boundary > div {
+  max-width: 520px;
+}
+
+.error-boundary-eyebrow {
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.error-boundary h1 {
+  color: var(--black);
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.error-boundary button {
+  background: var(--black);
+  border-radius: 4px;
+  color: var(--ivory);
+  font-weight: 800;
+  padding: 12px 22px;
+  text-transform: uppercase;
+}
+
+.error-boundary button:hover {
+  background: var(--gold);
+  color: var(--black);
+}

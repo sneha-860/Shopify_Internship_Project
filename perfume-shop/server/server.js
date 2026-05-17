@@ -5,6 +5,8 @@ require('dotenv').config();
 
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
+const authRoutes = require('./routes/auth');
+const checkoutRoutes = require('./routes/checkout');
 
 // Initialize main Express server application
 const app = express();
@@ -31,6 +33,8 @@ app.get('/api/health', (req, res) => {
 // API route mapping
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 // Database connection and server listening
 mongoose.connect(MONGO_URI)

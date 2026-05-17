@@ -3,7 +3,7 @@ import { useCart } from '../hooks/useCart';
 import api from '../api';
 import './CartDrawer.css';
 
-const PAYMENT_OPTIONS = ['UPI', 'Credit/Debit Card', 'Cash on Delivery'];
+const PAYMENT_OPTIONS = ['Stripe Checkout', 'UPI', 'Credit/Debit Card', 'Cash on Delivery'];
 
 const CartDrawer = ({ isOpen, onClose, onToast }) => {
   const { cart, increaseQty, decreaseQty, removeItem, clearCart } = useCart();
@@ -34,6 +34,16 @@ const CartDrawer = ({ isOpen, onClose, onToast }) => {
     try {
       setIsPlacingOrder(true);
       setCheckoutError('');
+
+      if (paymentMethod === 'Stripe Checkout') {
+        const response = await api.post('/checkout/create-session', { items: cart });
+        if (!response.data?.url) {
+          throw new Error('Stripe did not return a checkout URL');
+        }
+        window.location.href = response.data.url;
+        return;
+      }
+
       const response = await api.post('/orders', {
         items: cart,
         address,

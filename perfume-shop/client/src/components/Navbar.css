@@ -41,7 +41,8 @@
 }
 
 .nav-links a,
-.nav-links a:visited {
+.nav-links a:visited,
+.nav-account-btn {
   color: var(--ivory);
   font-size: 0.9rem;
   font-weight: 500;
@@ -50,8 +51,13 @@
   padding-bottom: 4px;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-account-btn:hover {
   color: var(--gold);
+}
+
+.nav-account-btn {
+  background: transparent;
 }
 
 /* FIX 7: Active link — gold color */

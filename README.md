@@ -1,35 +1,33 @@
 # Lumiere Perfume Shop
 
-Lumiere is a full-stack luxury perfume ecommerce demo built for a portfolio or resume review. It shows a polished React storefront backed by an Express and MongoDB API, with product discovery, product detail pages, reviews, wishlist, cart, and checkout flow.
+Lumiere is a full-stack luxury perfume ecommerce project built for a portfolio-ready shopping experience. It includes a polished React storefront, an Express and MongoDB API, product filtering, product detail pages, cart and wishlist drawers, JWT authentication, and a Stripe Checkout test-mode integration.
 
-## Resume Highlights
+## Screenshots
 
-- Built a responsive React 19 and Vite storefront with reusable product, review, cart, wishlist, search, toast, and gallery components.
-- Implemented REST endpoints in Express for catalog filtering, product detail, review creation, order creation, health checks, and seed data.
-- Added MongoDB and Mongoose models for products, reviews, and orders with validation and derived product rating updates.
-- Designed ecommerce UX details including loading skeletons, empty states, localStorage cart/wishlist persistence, responsive navigation, and a multi-step checkout drawer.
-- Hardened API inputs for invalid Mongo IDs, malformed numeric filters, unsafe search regex input, invalid reviews, and invalid order payloads.
+Add screenshots after deployment:
+
+| Home | Collection | Product Detail |
+| --- | --- | --- |
+| `screenshots/home.png` | `screenshots/collection.png` | `screenshots/product-detail.png` |
+
+| Cart / Checkout | Login / Signup | Mobile |
+| --- | --- | --- |
+| `screenshots/cart.png` | `screenshots/auth.png` | `screenshots/mobile.png` |
 
 ## Features
 
-### Storefront
-
-- Luxury homepage with visual hero, offer strip, catalog filters, and responsive product grid
-- Search by fragrance or brand
-- Category, price, rating, and sort controls
-- Product detail pages with image gallery, size selection, reviews, share links, cart, and wishlist actions
-- Cart drawer with quantity controls, price breakdown, discount and delivery fee logic, address validation, and order placement
-- Wishlist drawer with localStorage persistence
-- Toasts, loading skeletons, retry states, and empty catalog feedback
-
-### API
-
-- `GET /api/health` server health check
-- `GET /api/products` list products with search, category, price, rating, and sort filters
-- `GET /api/products/:id` fetch one product
-- `GET /api/products/:id/reviews` fetch product reviews
-- `POST /api/products/:id/reviews` submit a review and recalculate product rating metrics
-- `POST /api/orders` create a checkout order
+- Responsive luxury ecommerce storefront built with React and Vite
+- Product catalog with search, category, rating, price range, and sort filters
+- Filters combine together and work with both live API data and static fallback demo data
+- Product detail pages with image gallery, size selection, reviews, sharing, cart, and wishlist actions
+- Cart drawer with quantity controls, address validation, price summary, and checkout flow
+- Stripe hosted Checkout Session integration for test-mode payments
+- JWT login/signup flow with hashed passwords
+- Wishlist and cart persistence with localStorage
+- Reusable loading skeletons and app-level error boundary
+- Express REST API with MongoDB and Mongoose models
+- Seed script with 13 demo perfume products and reviews
+- Vercel-ready frontend deployment config
 
 ## Tech Stack
 
@@ -37,7 +35,9 @@ Lumiere is a full-stack luxury perfume ecommerce demo built for a portfolio or r
 | --- | --- |
 | Frontend | React 19, Vite, React Router, Axios, CSS |
 | Backend | Node.js, Express 5, MongoDB, Mongoose |
-| Tooling | ESLint, npm scripts, dotenv, nodemon |
+| Auth | JWT, bcryptjs |
+| Payments | Stripe Checkout Sessions |
+| Tooling | ESLint, dotenv, nodemon, npm |
 
 ## Project Structure
 
@@ -45,33 +45,36 @@ Lumiere is a full-stack luxury perfume ecommerce demo built for a portfolio or r
 perfume-shop/
   client/
     src/
+      components/
+      context/
+      data/
+      hooks/
+      pages/
       api.js
       App.jsx
       main.jsx
-      assets/
-      components/
-      hooks/
-      pages/
-    .env.example
+    vercel.json
     package.json
   server/
+    middleware/
     models/
     routes/
-    .env.example
     seed.js
     server.js
     package.json
+vercel.json
 ```
 
 ## Getting Started
 
-Prerequisites:
+### Prerequisites
 
-- Node.js 18 or newer
+- Node.js 18+
 - npm
-- MongoDB running locally, or a MongoDB Atlas connection string
+- MongoDB running locally or a MongoDB Atlas connection string
+- Stripe test account for checkout testing
 
-Install dependencies:
+### Install Dependencies
 
 ```bash
 cd perfume-shop/server
@@ -81,46 +84,107 @@ cd ../client
 npm install
 ```
 
-Create environment files:
+### Environment Variables
 
-```bash
-cd ../server
-cp .env.example .env
-
-cd ../client
-cp .env.example .env
-```
-
-Default server environment:
+Create `perfume-shop/server/.env`:
 
 ```env
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/perfume_shop
 CLIENT_URL=http://localhost:3000
 NODE_ENV=development
+JWT_SECRET=replace-with-a-long-random-secret
+STRIPE_SECRET_KEY=sk_test_replace_me
 ```
 
-Seed MongoDB:
+Create `perfume-shop/client/.env`:
+
+```env
+VITE_API_BASE_URL=/api
+```
+
+For deployed frontend + deployed backend, set:
+
+```env
+VITE_API_BASE_URL=https://your-backend-url.com/api
+```
+
+## Database Seed
 
 ```bash
 cd perfume-shop/server
 npm run seed
 ```
 
-Run the backend:
+This resets products, reviews, and orders, then inserts the demo catalog.
+
+## Run Locally
+
+Start the backend:
 
 ```bash
+cd perfume-shop/server
 npm run dev
 ```
 
-Run the frontend in a second terminal:
+Start the frontend in a second terminal:
 
 ```bash
 cd perfume-shop/client
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open:
+
+```text
+http://localhost:3000
+```
+
+## Stripe Test Checkout
+
+This project uses Stripe hosted Checkout Sessions. The server creates the Checkout Session and returns `session.url`; the client redirects with `window.location.href`.
+
+1. Add your Stripe test secret key to `perfume-shop/server/.env`.
+2. Add `Stripe Checkout` as the selected payment method in the cart.
+3. Click `Place Order`.
+4. Use Stripe test card `4242 4242 4242 4242`, any future expiry date, any CVC, and any ZIP/postal code.
+
+Relevant files:
+
+- `perfume-shop/server/routes/checkout.js`
+- `perfume-shop/client/src/components/CartDrawer.jsx`
+
+## Authentication
+
+The app uses JWT auth:
+
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+
+Passwords are hashed with `bcryptjs`, and JWTs are stored client-side in localStorage for this portfolio demo.
+
+Relevant files:
+
+- `perfume-shop/server/models/User.js`
+- `perfume-shop/server/routes/auth.js`
+- `perfume-shop/client/src/context/AuthContext.jsx`
+- `perfume-shop/client/src/pages/AuthPage.jsx`
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/api/health` | Health check |
+| GET | `/api/products` | Product list with optional query filters |
+| GET | `/api/products/:id` | Product detail |
+| GET | `/api/products/:id/reviews` | Product reviews |
+| POST | `/api/products/:id/reviews` | Create review |
+| POST | `/api/orders` | Create non-Stripe order |
+| POST | `/api/checkout/create-session` | Create Stripe Checkout Session |
+| POST | `/api/auth/signup` | Create user account |
+| POST | `/api/auth/login` | Log in |
+| GET | `/api/auth/me` | Fetch current user |
 
 ## Scripts
 
@@ -134,21 +198,19 @@ npm run server:dev
 npm run server:seed
 ```
 
-From each app folder:
+## Vercel Frontend Deployment
 
-| App | Script | Purpose |
-| --- | --- | --- |
-| Client | `npm run dev` | Start Vite on port 3000 |
-| Client | `npm run lint` | Run ESLint |
-| Client | `npm run build` | Create a production build |
-| Client | `npm run preview` | Preview the production build |
-| Server | `npm run dev` | Start Express with nodemon |
-| Server | `npm start` | Start Express with Node |
-| Server | `npm run seed` | Reset and seed products, reviews, and orders |
+Recommended Vercel settings:
+
+- Root Directory: `perfume-shop/client`
+- Framework Preset: `Vite`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Install Command: `npm install`
+
+The frontend contains fallback demo data, so the UI can still render on Vercel before the Express backend is deployed.
 
 ## Verification
-
-Current verification:
 
 ```bash
 cd perfume-shop/client
@@ -156,4 +218,12 @@ npm run lint
 npm run build
 ```
 
-Both commands pass.
+Both should pass before pushing.
+
+## Future Improvements
+
+- Deploy the Express API separately on Render, Railway, or another Node host
+- Add Stripe webhook fulfillment for `checkout.session.completed`
+- Add order history for authenticated users
+- Add automated tests for filters, auth, checkout routes, and cart behavior
+- Optimize hero image size for production performance

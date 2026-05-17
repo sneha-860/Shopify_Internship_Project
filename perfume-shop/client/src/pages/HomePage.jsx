@@ -3,10 +3,10 @@ import api from '../api';
 import HeroBanner from '../components/HeroBanner';
 import OffersStrip from '../components/OffersStrip';
 import ProductCard from '../components/ProductCard';
-import SkeletonCard from '../components/SkeletonCard';
+import ProductGridSkeleton from '../components/ProductGridSkeleton';
 import Toast from '../components/Toast';
 import AboutSection from '../components/AboutSection';
-import { filterDemoProducts } from '../data/demoCatalog';
+import { demoProducts, filterProductList } from '../data/demoCatalog';
 import './HomePage.css';
 
 const CATEGORIES = ['all', 'Oriental', 'Floral', 'Amber', 'Fresh'];
@@ -42,14 +42,8 @@ const getFilterValidationMessage = (filters) => {
   return '';
 };
 
-const buildProductParams = (filters) => Object.fromEntries(
-  Object.entries(filters)
-    .map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])
-    .filter(([, value]) => value !== '' && value !== 'all')
-);
-
 const HomePage = () => {
-  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toastVisible, setToastVisible] = useState(false);
@@ -57,50 +51,33 @@ const HomePage = () => {
   const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
 
   const validationMessage = useMemo(() => getFilterValidationMessage(filters), [filters]);
+  const products = useMemo(() => (
+    validationMessage ? [] : filterProductList(allProducts, filters)
+  ), [allProducts, filters, validationMessage]);
 
   const fetchProducts = useCallback(async ({ signal } = {}) => {
-    if (validationMessage) {
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
-      const res = await api.get('/products', {
-        params: buildProductParams(filters),
-        signal
-      });
-      setProducts(Array.isArray(res.data) ? res.data : filterDemoProducts(filters));
+      const res = await api.get('/products', { signal });
+      setAllProducts(Array.isArray(res.data) ? res.data : demoProducts);
     } catch (error) {
       if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') return;
       console.error('Unable to load products:', error);
-      setProducts(filterDemoProducts(filters));
+      setAllProducts(demoProducts);
       setError(null);
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-  }, [filters, validationMessage]);
+  }, []);
 
   useEffect(() => {
-    if (validationMessage) {
-      setLoading(false);
-      setError(null);
-      return undefined;
-    }
-
     const controller = new AbortController();
-    const debounceMs = filters.q.trim() ? 350 : 0;
-    const timeoutId = window.setTimeout(() => {
-      fetchProducts({ signal: controller.signal });
-    }, debounceMs);
-
+    fetchProducts({ signal: controller.signal });
     return () => {
-      window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [fetchProducts, filters.q, validationMessage]);
+  }, [fetchProducts]);
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -221,15 +198,16 @@ const HomePage = () => {
             <p>{validationMessage}</p>
             <button className="btn-retry" onClick={resetFilters}>Clear Filters</button>
           </div>
-        ) : error ? (
-          <div className="error-container">
-            <p className="error-text">{error}</p>
-            <button className="btn-retry" onClick={() => fetchProducts()}>Retry</button>
-          </div>
         ) : (
+          <>
+          {error && !loading && (
+            <div className="catalog-notice" role="status">
+              {error}
+            </div>
+          )}
           <div className="product-grid" aria-busy={loading}>
             {loading
-              ? Array(8).fill(null).map((_, i) => <SkeletonCard key={`skeleton-${i}`} />)
+              ? <ProductGridSkeleton count={8} />
               : products.length > 0
                 ? products.map(product => <ProductCard key={product._id} product={product} />)
                 : (
@@ -241,6 +219,7 @@ const HomePage = () => {
                 )
             }
           </div>
+          </>
         )}
       </section>
 

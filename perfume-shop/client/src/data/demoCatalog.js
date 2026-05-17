@@ -262,7 +262,7 @@ export const demoReviews = [
   }
 ];
 
-export const filterDemoProducts = (filters = {}) => {
+export const filterProductList = (products, filters = {}) => {
   const q = String(filters.q || '').trim().toLowerCase();
   const category = filters.category;
   const minPrice = filters.minPrice === undefined || filters.minPrice === '' ? null : Number(filters.minPrice);
@@ -270,7 +270,9 @@ export const filterDemoProducts = (filters = {}) => {
   const minRating = filters.minRating === undefined || filters.minRating === '' ? null : Number(filters.minRating);
   const sort = filters.sort || 'popular';
 
-  const filtered = demoProducts.filter((product) => {
+  const sourceProducts = Array.isArray(products) ? products : [];
+
+  const filtered = sourceProducts.filter((product) => {
     const searchableText = [
       product.name,
       product.brand,
@@ -292,11 +294,13 @@ export const filterDemoProducts = (filters = {}) => {
     priceLow: (a, b) => a.price - b.price,
     priceHigh: (a, b) => b.price - a.price,
     rating: (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
-    newest: (a, b) => demoProducts.indexOf(b) - demoProducts.indexOf(a),
+    newest: (a, b) => sourceProducts.indexOf(b) - sourceProducts.indexOf(a),
     popular: (a, b) => b.reviewCount - a.reviewCount || b.rating - a.rating
   };
 
   return [...filtered].sort(sorters[sort] || sorters.popular);
 };
+
+export const filterDemoProducts = (filters = {}) => filterProductList(demoProducts, filters);
 
 export const findDemoProduct = (id) => demoProducts.find(product => product._id === id);
